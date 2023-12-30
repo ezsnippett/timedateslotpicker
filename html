@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date-Time Slot Picker</title>
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <!-- Include Bootstrap CSS for styling -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- Include Bootstrap Datepicker -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+  <!-- Include daterangepicker -->
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <!-- Include animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-image: url('path-to-paypal-logo.png'); /* Update with the actual path to your PayPal logo */
+      background-repeat: no-repeat;
+      background-size: cover;
+      overflow: hidden; /* Hide scrollbar during transition */
+    }
+
+    .datetime-container {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      transition: background-color 1s ease;
+    }
+
+    .datetime-picker {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    select,
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input[type="text"] {
+      width: 200px;
+      border: 1px solid #ccc;
+    }
+
+    select {
+      width: 200px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #thank-you-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      opacity: 0; /* Initially hidden */
+      animation: fadeIn 1s ease-in-out forwards; /* Animation for modal appearance */
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      animation: fadeOut 1s ease-in-out forwards; /* Animation for overlay disappearance */
+    }
+
+    .header {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        background-color: #ffffff;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="datetime-container">
+  <div class="header">Time Slot Selection</div>
+
+  <label for="date1" class="datetime-picker">Select Date 1 (between 12 Jan and 12 Feb):</label>
+  <input type="text" id="date1" class="datepicker">
+
+  <label for="time1" class="datetime-picker">Select Time 1 (between 2 PM and 10 PM):</label>
+  <select id="time1">
+    <!-- Options for time between 2 PM and 10 PM -->
+  </select>
+
+  <label for="date2" class="datetime-picker">Select Date 2 (between 12 Jan and 12 Feb):</label>
+  <input type="text" id="date2" class="datepicker">
+
+  <label for="time2" class="datetime-picker">Select Time 2 (between 2 PM and 10 PM):</label>
+  <select id="time2">
+    <!-- Options for time between 2 PM and 10 PM -->
+  </select>
+
+  <label for="date3" class="datetime-picker">Select Date 3 (between 12 Jan and 12 Feb):</label>
+  <input type="text" id="date3" class="datepicker">
+
+  <label for="time3" class="datetime-picker">Select Time 3 (between 2 PM and 10 PM):</label>
+  <select id="time3">
+    <!-- Options for time between 2 PM and 10 PM -->
+  </select>
+
+  <button id="saveButton">Save</button>
+</div>
+
+<!-- Thank You Modal -->
+<div id="overlay"></div>
+<div id="thank-you-modal">
+  <p>Thank you for selecting your slot. You'll be informed about the further details.</p>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Initialize Bootstrap Datepicker
+    $('.datepicker').datepicker({
+      format: 'yyyy-mm-dd',
+      startDate: '2024-01-12',
+      endDate: '2024-02-12',
+      autoclose: true,
+      multidate: true
+    });
+
+    // Initialize daterangepicker
+    $('.datetime-picker input[type="text"]').daterangepicker({
+      singleDatePicker: true,
+      showDropdowns: true,
+      minDate: '2024-01-12',
+      maxDate: '2024-02-12',
+      locale: {
+        format: 'YYYY-MM-DD'
+      }
+    });
+
+    // Populate select elements with even hours
+    function populateEvenHours() {
+      for (let i = 14; i <= 22; i += 2) {
+        const formattedHour = ('0' + i).slice(-2) + ':00';
+        $('select').append(`<option value="${formattedHour}">${formattedHour}</option>`);
+      }
+    }
+
+    populateEvenHours();
+
+    // Save Button Click Event
+    $('#saveButton').on('click', function () {
+      // Transition to white background
+      $('body').css('background-color', '#ffffff');
+      $('.datetime-container').css('background-color', '#ffffff');
+
+      // Delay to allow the transition effect
+      setTimeout(function() {
+        // Display Thank You Modal
+        $('#overlay').show();
+        $('#thank-you-modal').show();
+      }, 1000); // Adjust the delay as needed
+
+      // You can perform further actions here, such as sending data to the server.
+    });
+
+    // Close Modal on Overlay Click
+    $('#overlay').on('click', function () {
+      $('#overlay').hide();
+      $('#thank-you-modal').hide();
+    });
+  });
+</script>
+
+</body>
+</html>
